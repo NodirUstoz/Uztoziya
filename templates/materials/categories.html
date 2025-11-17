@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}AI yordamida material yaratish - Ustoziya{% endblock %}
+{% block page_title %}AI yordamida material yaratish{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ai-category-hero {
+        background: linear-gradient(135deg, #2c3e50, #2980b9);
+        border-radius: 24px;
+        color: #fff;
+        padding: 40px;
+        margin-bottom: 30px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .ai-category-hero h3 {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .ai-category-card {
+        border: none;
+        border-radius: 20px;
+        color: #fff;
+        height: 100%;
+        padding: 28px;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .ai-category-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+        text-decoration: none;
+        color: #fff;
+    }
+
+    .ai-category-card h5 {
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+    .ai-category-card p {
+        margin-bottom: 0;
+        line-height: 1.5;
+    }
+
+    .ai-card-icon {
+        font-size: 2.8rem;
+        margin-bottom: 20px;
+        display: inline-flex;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ai-category-hero">
+    <h3 class="mb-3">Sun'iy intellekt yordamida yangi materiallar yarating</h3>
+    <p class="mb-3">
+        O'quv jarayonini tezlashtirish va boyitish uchun turli AI modellari yordamida taqdimotlar,
+        interaktiv metodlar, vizual materiallar hamda qo'shimcha manbalarni yarating.
+    </p>
+    <div class="d-flex flex-wrap gap-3">
+        <span class="badge bg-light text-dark px-3 py-2 rounded-pill">GPT-4o va Gemini 1.5</span>
+        <span class="badge bg-light text-dark px-3 py-2 rounded-pill">Matn va tasvir generatsiyasi</span>
+        <span class="badge bg-light text-dark px-3 py-2 rounded-pill">O'qituvchilar uchun moslashtirilgan</span>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% for card in cards %}
+    <div class="col-md-6">
+        <a href="{{ card.url }}" class="d-block ai-category-card" style="background: {{ card.background }};">
+            <div class="ai-card-icon">{{ card.emoji }}</div>
+            <h5>{{ card.title }}</h5>
+            <p>{{ card.description }}</p>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="alert alert-warning mt-4 mb-0">
+    <strong>API kalitlari eslatmasi:</strong> .env faylida kamida <code>OPENROUTER_API_KEY</code> ni, shuningdek
+    ixtiyoriy ravishda <code>OPENAI_API_KEY</code> yoki <code>GOOGLE_GEMINI_API_KEY</code> qiymatlarini kiritishni unutmang.
+</div>
+{% endblock %}
+

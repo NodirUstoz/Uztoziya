@@ -1,0 +1,532 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    .material-options-modal .modal-content {
+        border-radius: 20px;
+        border: none;
+    }
+
+    .material-options-modal .modal-header {
+        border-bottom: none;
+    }
+
+    .material-options-modal .modal-footer {
+        border-top: none;
+    }
+
+    .material-options-modal .material-option {
+        text-decoration: none;
+    }
+
+    .material-options-modal .material-option-card {
+        border-radius: 18px;
+        color: #ffffff;
+        height: 100%;
+        padding: 24px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .material-options-modal .material-option-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 18px 36px rgba(0, 0, 0, 0.18);
+    }
+
+    .material-options-modal .material-icon {
+        font-size: 2.5rem;
+        display: inline-flex;
+        width: 58px;
+        height: 58px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.18);
+        margin-bottom: 18px;
+    }
+
+    .material-options-modal .material-option-card .card-title {
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+    .material-options-modal .material-option-card .card-text {
+        color: rgba(255, 255, 255, 0.85);
+        margin-bottom: 0;
+    }
+
+    .material-option-card--presentation {
+        background: linear-gradient(135deg, #ff9f43, #ff6f20);
+    }
+
+    .material-option-card--interactive {
+        background: linear-gradient(135deg, #1abc9c, #109177);
+    }
+
+    .material-option-card--image {
+        background: linear-gradient(135deg, #3498db, #2c82c9);
+    }
+
+    .material-option-card--resources {
+        background: linear-gradient(135deg, #f6d365, #fda085);
+        color: #2c3e50;
+    }
+
+    .material-option-card--resources .material-icon {
+        background: rgba(255, 255, 255, 0.35);
+    }
+
+    .material-option-card--resources .card-text {
+        color: rgba(44, 62, 80, 0.75);
+    }
+
+    .review-hub-card {
+        border: none;
+        border-radius: 28px;
+        padding: 32px;
+        height: 100%;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 24px 45px rgba(18, 38, 63, 0.25);
+    }
+
+    .review-hub-card::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.38), transparent 45%);
+        opacity: 0.8;
+        pointer-events: none;
+    }
+
+    .review-hub-card h4 {
+        font-weight: 700;
+        letter-spacing: 0.04em;
+    }
+
+    .review-hub-card .badge {
+        background: rgba(255, 255, 255, 0.18);
+        border-radius: 999px;
+        padding: 0.55rem 1.1rem;
+        font-weight: 600;
+    }
+
+    .review-hub-card .action-buttons .btn {
+        border-radius: 14px;
+        font-weight: 600;
+    }
+
+    .review-upload {
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px dashed rgba(255, 255, 255, 0.4);
+        border-radius: 18px;
+        padding: 18px;
+    }
+
+    .review-upload input[type="file"] {
+        display: none;
+    }
+
+    .review-hub-card--bsb {
+        background: linear-gradient(135deg, #111d5e, #2575fc);
+    }
+
+    .review-hub-card--chsb {
+        background: linear-gradient(135deg, #6a11cb, #ff6a88);
+    }
+
+    .review-progress {
+        backdrop-filter: blur(6px);
+        background: rgba(0, 0, 0, 0.22);
+        border-radius: 16px;
+        padding: 14px 20px;
+    }
+
+    .review-progress small {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .review-hub-card .excel-link {
+        color: #fff;
+        text-decoration: underline;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block title %}Dashboard - Ustoziya Platformasi{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-6 mb-4 mb-lg-0">
+        <div class="review-hub-card review-hub-card--bsb">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <span class="badge mb-2">BSB • Blokli Sinov Boshqaruvi</span>
+                    <h4 class="mb-1">BSB nazorat markazi</h4>
+                    <p class="mb-0">Test va yozma ishlar natijalarini tezda tekshiring, fikr bildiring va Excel hisobotiga eksport qiling.</p>
+                </div>
+                <div class="fs-1">📊</div>
+            </div>
+            <div class="review-progress mb-3 d-flex justify-content-between">
+                <div>
+                    <strong>12 ta fayl</strong>
+                    <small class="d-block">Bugun qabul qilingan</small>
+                </div>
+                <div class="text-end">
+                    <strong>7 ta tekshirildi</strong>
+                    <small class="d-block">5 ta navbatda</small>
+                </div>
+            </div>
+            <div class="review-upload mb-3">
+                <label class="d-flex align-items-center mb-0 cursor-pointer">
+                    <div>
+                        <h6 class="mb-1 text-white">Natijani yuklash</h6>
+                        <small class="text-white-50">PDF, Word yoki Excel faylini tanlang</small>
+                    </div>
+                    <span class="ms-auto btn btn-light btn-sm text-primary fw-semibold">
+                        <i class="fas fa-upload me-2"></i>Fayl tanlash
+                    </span>
+                    <input type="file" name="bsb_upload" id="bsbUpload">
+                </label>
+            </div>
+            <div class="action-buttons d-flex flex-wrap gap-2">
+                <a href="#" class="btn btn-light text-primary flex-fill">
+                    <i class="fas fa-check-circle me-2"></i>Navbatdagini tekshirish
+                </a>
+                <a href="#" class="btn btn-outline-light flex-fill">
+                    <i class="fas fa-file-excel me-2"></i>Excel hisobotini yuklab olish
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="review-hub-card review-hub-card--chsb">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <span class="badge mb-2">CHSB • Choraklik Hisob</span>
+                    <h4 class="mb-1">CHSB tahlil zonasi</h4>
+                    <p class="mb-0">O‘quvchilarning chorak yakunlari, diagnostika ishlari va kreativ topshiriqlarini bir joyda boshqaring.</p>
+                </div>
+                <div class="fs-1">🗂️</div>
+            </div>
+            <div class="review-progress mb-3 d-flex justify-content-between">
+                <div>
+                    <strong>3 guruh</strong>
+                    <small class="d-block">Faol tekshirish jarayonida</small>
+                </div>
+                <div class="text-end">
+                    <strong>98%</strong>
+                    <small class="d-block">Hisobot tayyorlik darajasi</small>
+                </div>
+            </div>
+            <div class="review-upload mb-3">
+                <label class="d-flex align-items-center mb-0 cursor-pointer">
+                    <div>
+                        <h6 class="mb-1 text-white">Yangi ishni ulash</h6>
+                        <small class="text-white-50">Jo'natilgan fayl avtomatik tarzda navbatga tushadi</small>
+                    </div>
+                    <span class="ms-auto btn btn-light btn-sm text-danger fw-semibold">
+                        <i class="fas fa-paper-plane me-2"></i>Yuklash
+                    </span>
+                    <input type="file" name="chsb_upload" id="chsbUpload">
+                </label>
+            </div>
+            <div class="action-buttons d-flex flex-wrap gap-2">
+                <a href="#" class="btn btn-light flex-fill">
+                    <i class="fas fa-eye me-2"></i>Tekshiruv jurnali
+                </a>
+                <a href="#" class="btn btn-outline-light flex-fill">
+                    <i class="fas fa-download me-2"></i>CHSB Excel hisobot
+                </a>
+            </div>
+            <small class="d-block mt-3 text-white-75">Excel chiqarish formatida BSB va CHSB kesimida umumiy reytinglar yaratiladi.</small>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Stats Cards -->
+    <div class="col-md-2 mb-4">
+        <div class="stats-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3>{{ stats.materials_count|default:0 }}</h3>
+                    <p class="mb-0">Materiallar</p>
+                </div>
+                <i class="fas fa-file-alt fa-2x"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-2 mb-4">
+        <div class="stats-card" style="background: linear-gradient(135deg, #3498db, #2980b9);">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3>{{ stats.tests_count|default:0 }}</h3>
+                    <p class="mb-0">Testlar</p>
+                </div>
+                <i class="fas fa-question-circle fa-2x"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-2 mb-4">
+        <div class="stats-card" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3>{{ stats.assignments_count|default:0 }}</h3>
+                    <p class="mb-0">Topshiriqlar</p>
+                </div>
+                <i class="fas fa-tasks fa-2x"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-2 mb-4">
+        <div class="stats-card" style="background: linear-gradient(135deg, #f39c12, #e67e22);">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3>{{ stats.videos_count|default:0 }}</h3>
+                    <p class="mb-0">Video Darsliklar</p>
+                </div>
+                <i class="fas fa-video fa-2x"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-2 mb-4">
+        <div class="stats-card" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3>{{ stats.models_3d_count|default:0 }}</h3>
+                    <p class="mb-0">3D Modellar</p>
+                </div>
+                <i class="fas fa-cube fa-2x"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-2 mb-4">
+        <div class="stats-card" style="background: linear-gradient(135deg, #1abc9c, #16a085);">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3>{{ stats.ocr_count|default:0 }}</h3>
+                    <p class="mb-0">OCR</p>
+                </div>
+                <i class="fas fa-camera fa-2x"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Quick Actions -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-bolt me-2"></i>
+                    Tezkor Amallar
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#newMaterialModal">
+                            <i class="fas fa-plus me-2"></i>
+                            Yangi Material
+                        </button>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'test_create_page' %}" class="btn btn-success w-100">
+                            <i class="fas fa-plus me-2"></i>
+                            Yangi Test
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'assignments_list' %}" class="btn btn-warning w-100">
+                            <i class="fas fa-tasks me-2"></i>
+                            Topshiriq Berish
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'videos_list' %}" class="btn btn-info w-100">
+                            <i class="fas fa-video me-2"></i>
+                            Video Darslik
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'models_3d_list' %}" class="btn btn-secondary w-100">
+                            <i class="fas fa-cube me-2"></i>
+                            3D Model
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'ocr_upload' %}" class="btn btn-dark w-100">
+                            <i class="fas fa-camera me-2"></i>
+                            OCR Tekshirish
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Activities -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-clock me-2"></i>
+                    So'nggi Faoliyatlar
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-file-alt text-primary me-2"></i>
+                            Yangi material qo'shildi
+                        </div>
+                        <small class="text-muted">2 soat oldin</small>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-question-circle text-success me-2"></i>
+                            Test yaratildi
+                        </div>
+                        <small class="text-muted">5 soat oldin</small>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-camera text-warning me-2"></i>
+                            OCR qayta ishlandi
+                        </div>
+                        <small class="text-muted">1 kun oldin</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Recent Materials -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-file-alt me-2"></i>
+                    So'nggi Materiallar
+                </h5>
+                <a href="{% url 'materials_list' %}" class="btn btn-sm btn-outline-primary">Barchasini ko'rish</a>
+            </div>
+            <div class="card-body">
+                {% if recent_materials %}
+                    {% for material in recent_materials %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="mb-1">{{ material.title }}</h6>
+                            <small class="text-muted">{{ material.get_material_type_display }}</small>
+                        </div>
+                        <span class="badge bg-primary">{{ material.download_count }} yuklab olish</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">Hozircha materiallar yo'q</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Tests -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-question-circle me-2"></i>
+                    So'nggi Testlar
+                </h5>
+                <a href="{% url 'tests_list' %}" class="btn btn-sm btn-outline-primary">Barchasini ko'rish</a>
+            </div>
+            <div class="card-body">
+                {% if recent_tests %}
+                    {% for test in recent_tests %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="mb-1">{{ test.title }}</h6>
+                            <small class="text-muted">{{ test.get_difficulty_display }} • {{ test.total_questions }} savol</small>
+                        </div>
+                        <span class="badge bg-success">{{ test.attempts.count }} topshirish</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">Hozircha testlar yo'q</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Yangi Material modal oynasi -->
+<div class="modal fade material-options-modal" id="newMaterialModal" tabindex="-1" aria-labelledby="newMaterialModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header d-flex justify-content-between align-items-start">
+                <div>
+                    <h5 class="modal-title fw-semibold" id="newMaterialModalLabel">Material yo'nalishini tanlang</h5>
+                    <p class="text-muted mb-0">O'zingiz yaratmoqchi bo'lgan material turiga mos yo'nalishni tanlang.</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Yopish"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <a href="{% url 'materials:presentation' %}" class="material-option d-block">
+                            <div class="card material-option-card material-option-card--presentation">
+                                <div class="material-icon">🧾</div>
+                                <h5 class="card-title">Taqdimot tayyorlash</h5>
+                                <p class="card-text">Slaydlar, struktura va vizual elementlar bo'yicha tavsiyalarni o'rganing.</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="{% url 'materials:interactive' %}" class="material-option d-block">
+                            <div class="card material-option-card material-option-card--interactive">
+                                <div class="material-icon">🧠</div>
+                                <h5 class="card-title">Interaktiv metodlar</h5>
+                                <p class="card-text">O'quvchilarni jalb etuvchi mashg'ulot va faol metodlar to'plami.</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="{% url 'materials:image' %}" class="material-option d-block">
+                            <div class="card material-option-card material-option-card--image">
+                                <div class="material-icon">🖼️</div>
+                                <h5 class="card-title">Rasm tayyorlash</h5>
+                                <p class="card-text">Vizual materiallar, infografika va ta'limiy tasvirlar yaratish bo'yicha yo'riqnoma.</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="{% url 'materials:resources' %}" class="material-option d-block">
+                            <div class="card material-option-card material-option-card--resources">
+                                <div class="material-icon">📚</div>
+                                <h5 class="card-title">Qo'shimcha o'quv manbalari</h5>
+                                <p class="card-text">Kitoblar, maqolalar va raqamli manbalar ro'yxati bilan tanishing.</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Yopish</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

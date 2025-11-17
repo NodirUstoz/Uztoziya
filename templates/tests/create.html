@@ -1,0 +1,563 @@
+{% extends 'base.html' %}
+
+{% block title %}Test Yaratish - Ustoziya Platformasi{% endblock %}
+{% block page_title %}Test Yaratish{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-10 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="testCreateTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual" type="button" role="tab">
+                            <i class="fas fa-edit me-2"></i>
+                            Qo'lda Test Yaratish
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="ai-tab" data-bs-toggle="tab" data-bs-target="#ai" type="button" role="tab">
+                            <i class="fas fa-robot me-2"></i>
+                            AI yordamida Yaratish
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="testCreateTabContent">
+                    <!-- Qo'lda test yaratish -->
+                    <div class="tab-pane fade show active" id="manual" role="tabpanel">
+                        <form method="POST" action="{% url 'test_create_page' %}" id="manualTestForm">
+                            {% csrf_token %}
+                            
+                            <h6 class="text-primary mb-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Test Ma'lumotlari
+                            </h6>
+                            
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="title" class="form-label">Test Sarlavhasi *</label>
+                                    <input type="text" class="form-control" id="title" name="title" placeholder="Masalan: Matematika 7-sinf I chorak" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="description" class="form-label">Test Tavsifi</label>
+                                    <textarea class="form-control" id="description" name="description" rows="3" placeholder="Test haqida qisqacha ma'lumot..."></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="manual_subject" class="form-label">Fan *</label>
+                                    <select class="form-select" id="manual_subject" name="subject" required>
+                                        <option value="">Fan tanlang...</option>
+                                        <option value="mathematics">Matematika</option>
+                                        <option value="physics">Fizika</option>
+                                        <option value="chemistry">Kimyo</option>
+                                        <option value="biology">Biologiya</option>
+                                        <option value="geography">Geografiya</option>
+                                        <option value="history">Tarix</option>
+                                        <option value="literature">Adabiyot</option>
+                                        <option value="language">Til va adabiyot</option>
+                                        <option value="english">Ingliz tili</option>
+                                        <option value="russian">Rus tili</option>
+                                        <option value="computer_science">Informatika</option>
+                                        <option value="art">San'at</option>
+                                        <option value="physical_education">Jismoniy tarbiya</option>
+                                        <option value="other">Boshqa</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="manual_grade_level" class="form-label">Sinf Darajasi *</label>
+                                    <input type="text" class="form-control" id="manual_grade_level" name="grade_level" placeholder="Masalan: 7-sinf" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="manual_category" class="form-label">Kategoriya *</label>
+                                    <select class="form-select" id="manual_category" name="category" required>
+                                        <option value="">Kategoriya tanlang...</option>
+                                        {% for category in categories %}
+                                        <option value="{{ category.id }}">{{ category.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="manual_difficulty" class="form-label">Qiyinlik Darajasi *</label>
+                                    <select class="form-select" id="manual_difficulty" name="difficulty" required>
+                                        <option value="">Qiyinlik tanlang...</option>
+                                        <option value="easy">Oson</option>
+                                        <option value="medium" selected>O'rta</option>
+                                        <option value="hard">Qiyin</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="manual_time_limit" class="form-label">Vaqt Chegarasi (daqiqa)</label>
+                                    <input type="number" class="form-control" id="manual_time_limit" name="time_limit" value="60" min="1" max="300">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="is_public" class="form-label d-block">Ochiq Test</label>
+                                    <div class="form-check form-switch mt-2">
+                                        <input class="form-check-input" type="checkbox" id="is_public" name="is_public" checked>
+                                        <label class="form-check-label" for="is_public">
+                                            Boshqalar ko'ra olsin
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <hr class="my-4">
+                            
+                            <h6 class="text-primary mb-3">
+                                <i class="fas fa-question-circle me-2"></i>
+                                Savollar
+                            </h6>
+                            
+                            <div id="questionsContainer">
+                                <!-- Savollar dinamik ravishda qo'shiladi -->
+                            </div>
+                            
+                            <button type="button" class="btn btn-outline-primary mb-4" id="addQuestionBtn">
+                                <i class="fas fa-plus me-2"></i>
+                                Savol Qo'shish
+                            </button>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fas fa-save me-2"></i>
+                                    Testni Saqlash
+                                </button>
+                                <a href="{% url 'tests_list' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i>
+                                    Bekor qilish
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- AI yordamida test yaratish -->
+                    <div class="tab-pane fade" id="ai" role="tabpanel">
+                        <h6 class="text-info mb-3">
+                            <i class="fas fa-magic me-2"></i>
+                            AI yordamida test yaratish
+                        </h6>
+                    
+                    <form id="aiTestForm">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="ai_subject" class="form-label">Fan *</label>
+                                <select class="form-select" id="ai_subject" name="subject" required>
+                                    <option value="">Fan tanlang...</option>
+                                    <option value="mathematics">Matematika</option>
+                                    <option value="physics">Fizika</option>
+                                    <option value="chemistry">Kimyo</option>
+                                    <option value="biology">Biologiya</option>
+                                    <option value="geography">Geografiya</option>
+                                    <option value="history">Tarix</option>
+                                    <option value="literature">Adabiyot</option>
+                                    <option value="language">Til va adabiyot</option>
+                                    <option value="english">Ingliz tili</option>
+                                    <option value="russian">Rus tili</option>
+                                    <option value="computer_science">Informatika</option>
+                                    <option value="art">San'at</option>
+                                    <option value="physical_education">Jismoniy tarbiya</option>
+                                    <option value="other">Boshqa</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="ai_grade_level" class="form-label">Sinf Darajasi *</label>
+                                <input type="text" class="form-control" id="ai_grade_level" name="grade_level" placeholder="Masalan: 7-sinf" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="ai_difficulty" class="form-label">Qiyinlik Darajasi *</label>
+                                <select class="form-select" id="ai_difficulty" name="difficulty" required>
+                                    <option value="">Qiyinlik tanlang...</option>
+                                    <option value="easy">Oson</option>
+                                    <option value="medium">O'rta</option>
+                                    <option value="hard">Qiyin</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="ai_category" class="form-label">Kategoriya *</label>
+                                <select class="form-select" id="ai_category" name="category" required>
+                                    <option value="">Kategoriya tanlang...</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="aiNumQuestions" class="form-label">Savollar soni</label>
+                                <input type="number" class="form-control" id="aiNumQuestions" value="5" min="1" max="20">
+                        </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="aiTopic" class="form-label">Mavzu (ixtiyoriy)</label>
+                                <input type="text" class="form-control" id="aiTopic" placeholder="Masalan: Algebra, Geometriya">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="ai_time_limit" class="form-label">Vaqt Chegarasi (daqiqa)</label>
+                                <input type="number" class="form-control" id="ai_time_limit" name="time_limit" value="60" min="1" max="300">
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="button" class="btn btn-info btn-lg" id="generateAiTest">
+                                <i class="fas fa-magic me-2"></i>
+                                AI yordamida test yaratish
+                            </button>
+                        </div>
+                    </form>
+                        </div>
+                        
+                <!-- Natija ko'rsatish -->
+                <div id="testResult" class="mb-4" style="display: none;">
+                    <h6 class="text-success mb-3">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Test muvaffaqiyatli yaratildi!
+                    </h6>
+                    <div class="alert alert-success">
+                        <p id="resultMessage"></p>
+                        <div class="mt-3">
+                            <button type="button" class="btn btn-success me-2" id="exportToWord">
+                                <i class="fas fa-file-word me-2"></i>
+                                Word formatida yuklab olish
+                            </button>
+                            <button type="button" class="btn btn-primary" id="viewTest">
+                                <i class="fas fa-eye me-2"></i>
+                                Testni ko'rish
+                        </button>
+                    </div>
+                    </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let questionCount = 0;
+    let generatedTest = null;
+    
+    // Qo'lda savol qo'shish
+    document.getElementById('addQuestionBtn').addEventListener('click', function() {
+        questionCount++;
+        addQuestion(questionCount);
+    });
+    
+    // Birinchi savolni avtomatik qo'shish
+    addQuestion(++questionCount);
+    
+    function addQuestion(number) {
+        const questionDiv = document.createElement('div');
+        questionDiv.className = 'card mb-3 question-card';
+        questionDiv.dataset.questionNumber = number;
+        questionDiv.innerHTML = `
+            <div class="card-header bg-light">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">Savol ${number}</h6>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="removeQuestion(this)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Savol Matni *</label>
+                    <textarea class="form-control" name="questions[${number}][text]" rows="3" required></textarea>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Savol Turi *</label>
+                        <select class="form-select" name="questions[${number}][type]" onchange="updateAnswerOptions(this, ${number})" required>
+                            <option value="single_choice">Bitta javob tanlash</option>
+                            <option value="multiple_choice">Bir nechta javob tanlash</option>
+                            <option value="true_false">To'g'ri/Noto'g'ri</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Ball *</label>
+                        <input type="number" class="form-control" name="questions[${number}][points]" value="1" min="1" required>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Tushuntirish (ixtiyoriy)</label>
+                    <textarea class="form-control" name="questions[${number}][explanation]" rows="2"></textarea>
+                </div>
+                
+                <div class="answers-container" id="answers-${number}">
+                    <!-- Javoblar bu yerda qo'shiladi -->
+                </div>
+                
+                <button type="button" class="btn btn-sm btn-outline-success add-answer-btn" onclick="addAnswer(${number})">
+                    <i class="fas fa-plus me-1"></i>
+                    Javob qo'shish
+                </button>
+            </div>
+        `;
+        
+        document.getElementById('questionsContainer').appendChild(questionDiv);
+        
+        // Dastlabki javoblarni qo'shish
+        addAnswer(number);
+        addAnswer(number);
+    }
+    
+    window.addAnswer = function(questionNumber) {
+        const answersContainer = document.getElementById(`answers-${questionNumber}`);
+        const answerNumber = answersContainer.children.length + 1;
+        
+        const answerDiv = document.createElement('div');
+        answerDiv.className = 'input-group mb-2';
+        answerDiv.innerHTML = `
+            <div class="input-group-text">
+                <input class="form-check-input mt-0" type="checkbox" name="questions[${questionNumber}][answers][${answerNumber}][is_correct]">
+            </div>
+            <input type="text" class="form-control" name="questions[${questionNumber}][answers][${answerNumber}][text]" placeholder="Javob ${answerNumber}" required>
+            <button type="button" class="btn btn-outline-danger" onclick="removeAnswer(this)">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        answersContainer.appendChild(answerDiv);
+    };
+    
+    window.removeAnswer = function(button) {
+        button.closest('.input-group').remove();
+    };
+    
+    window.removeQuestion = function(button) {
+        if (confirm('Savolni o\'chirmoqchimisiz?')) {
+            button.closest('.question-card').remove();
+        }
+    };
+    
+    window.updateAnswerOptions = function(select, questionNumber) {
+        const answersContainer = document.getElementById(`answers-${questionNumber}`);
+        // Eski javoblarni o'chirish va yangisini qo'shish
+        if (select.value === 'true_false') {
+            answersContainer.innerHTML = '';
+            addAnswer(questionNumber);
+            addAnswer(questionNumber);
+            document.querySelector(`.add-answer-btn[onclick="addAnswer(${questionNumber})"]`).style.display = 'none';
+        } else {
+            document.querySelector(`.add-answer-btn[onclick="addAnswer(${questionNumber})"]`).style.display = 'inline-block';
+        }
+    };
+    
+    // Manual form submit
+    document.getElementById('manualTestForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Form ma'lumotlarini to'plash
+        const formData = new FormData(this);
+        
+        // Savollarni JSON formatga o'tkazish
+        const questions = [];
+        const questionCards = document.querySelectorAll('.question-card');
+        
+        questionCards.forEach((card, index) => {
+            const questionNumber = card.dataset.questionNumber;
+            const questionText = formData.get(`questions[${questionNumber}][text]`);
+            const questionType = formData.get(`questions[${questionNumber}][type]`);
+            const points = formData.get(`questions[${questionNumber}][points]`);
+            const explanation = formData.get(`questions[${questionNumber}][explanation]`);
+            
+            const answers = [];
+            const answerInputs = card.querySelectorAll('.answers-container .input-group');
+            answerInputs.forEach((answerGroup, answerIndex) => {
+                const answerNumber = answerIndex + 1;
+                const text = formData.get(`questions[${questionNumber}][answers][${answerNumber}][text]`);
+                const isCorrect = formData.get(`questions[${questionNumber}][answers][${answerNumber}][is_correct]`) === 'on';
+                
+                if (text) {
+                    answers.push({
+                        text: text,
+                        is_correct: isCorrect
+                    });
+                }
+            });
+            
+            if (questionText) {
+                questions.push({
+                    text: questionText,
+                    type: questionType,
+                    points: parseInt(points),
+                    explanation: explanation,
+                    answers: answers
+                });
+            }
+        });
+        
+        // JSON formatda yuborish
+        const data = {
+            title: formData.get('title'),
+            description: formData.get('description'),
+            subject: formData.get('subject'),
+            grade_level: formData.get('grade_level'),
+            category: formData.get('category'),
+            difficulty: formData.get('difficulty'),
+            time_limit: formData.get('time_limit'),
+            is_public: formData.get('is_public') === 'on',
+            questions: questions
+        };
+        
+        // Server ga yuborish
+        fetch('{% url "test_create_page" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            },
+            body: new URLSearchParams({
+                ...Object.fromEntries(formData),
+                questions: JSON.stringify(questions)
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Test muvaffaqiyatli yaratildi!');
+                window.location.href = '{% url "tests_list" %}';
+            } else {
+                alert('Xatolik: ' + (data.error || 'Noma\'lum xatolik'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Server bilan aloqa xatoligi');
+        });
+    });
+    
+    // AI test generation
+    const generateBtn = document.getElementById('generateAiTest');
+    if (generateBtn) {
+        generateBtn.addEventListener('click', function() {
+            console.log('AI tugmasi bosildi');
+            
+            const subject = document.getElementById('ai_subject').value;
+            const gradeLevel = document.getElementById('ai_grade_level').value;
+            const difficulty = document.getElementById('ai_difficulty').value;
+            const category = document.getElementById('ai_category').value;
+            const numQuestions = document.getElementById('aiNumQuestions').value;
+            const topic = document.getElementById('aiTopic').value;
+            const timeLimit = document.getElementById('ai_time_limit').value;
+            
+            console.log('Form qiymatlari:', { subject, gradeLevel, difficulty, category, numQuestions, topic, timeLimit });
+            
+            if (!subject || !gradeLevel || !difficulty || !category) {
+                alert('Iltimos, barcha majburiy maydonlarni to\'ldiring');
+                return;
+            }
+            
+            const button = this;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>AI ishlayapti...';
+            button.disabled = true;
+            
+            const data = {
+                subject: subject,
+                grade_level: gradeLevel,
+                difficulty: difficulty,
+                category_id: category,
+                num_questions: parseInt(numQuestions),
+                topic: topic,
+                time_limit: parseInt(timeLimit)
+            };
+            
+            console.log('Yuborilayotgan ma\'lumotlar:', data);
+            
+            fetch('/api/tests/generate-ai/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                console.log('Server javobi:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Server ma\'lumotlari:', data);
+                if (data.message) {
+                    generatedTest = data.test;
+                    document.getElementById('resultMessage').textContent = 
+                        `AI yordamida test muvaffaqiyatli yaratildi! ${data.questions_count} ta savol qo'shildi.`;
+                    document.getElementById('testResult').style.display = 'block';
+                    document.getElementById('aiTestForm').style.display = 'none';
+                } else {
+                    alert('Xatolik: ' + (data.error || 'Noma\'lum xatolik'));
+                }
+            })
+            .catch(error => {
+                console.error('Xatolik yuz berdi:', error);
+                alert('Server bilan aloqa xatoligi: ' + error.message);
+            })
+            .finally(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+        });
+    } else {
+        console.error('generateAiTest tugmasi topilmadi!');
+    }
+    
+    // Word export
+    document.getElementById('exportToWord').addEventListener('click', function() {
+        if (!generatedTest) {
+            alert('Avval test yaratish kerak');
+            return;
+        }
+        
+        // Word export uchun ma'lumotlarni yuborish
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/api/tests/export-word/';
+        
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = 'csrfmiddlewaretoken';
+        csrfToken.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        const testId = document.createElement('input');
+        testId.type = 'hidden';
+        testId.name = 'test_id';
+        testId.value = generatedTest.id;
+        
+        form.appendChild(csrfToken);
+        form.appendChild(testId);
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    });
+    
+    // Test ko'rish
+    document.getElementById('viewTest').addEventListener('click', function() {
+        if (!generatedTest) {
+            alert('Avval test yaratish kerak');
+            return;
+        }
+        
+        window.location.href = `/tests/${generatedTest.id}/`;
+    });
+});
+</script>
+{% endblock %}

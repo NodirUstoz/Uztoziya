@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}AI tavsiya qilgan o'quv manbalari - Ustoziya{% endblock %}
+{% block page_title %}{{ hero.emoji }} {{ hero.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ai-hero-card {
+        border-radius: 24px;
+        border: none;
+        background: linear-gradient(135deg, #f6d365, #fda085);
+        color: #2c3e50;
+        box-shadow: 0 14px 36px rgba(0, 0, 0, 0.16);
+    }
+
+    .ai-result-box {
+        background: #fffaf0;
+        border-radius: 18px;
+        padding: 24px;
+        white-space: pre-wrap;
+        line-height: 1.7;
+        border: 1px solid #f3d9b1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-xl-9 col-lg-10">
+        <div class="card ai-hero-card mb-4">
+            <div class="card-body p-4 p-lg-5">
+                <h3 class="fw-bold mb-3 text-dark">{{ hero.subtitle }}</h3>
+                <p class="lead mb-4 text-dark">
+                    AI kutubxonachi sifatida fan, mavzu yoki maqsad bo'yicha eng foydali kitoblar, maqolalar, videolar
+                    va onlayn manbalarni tavsiya qiladi. Har bir manba uchun qisqa tavsif va qo'llash yo'riqnomasi mavjud.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <span class="badge bg-white text-dark px-3 py-2 rounded-pill border-0">📖 Kitob va maqolalar</span>
+                    <span class="badge bg-white text-dark px-3 py-2 rounded-pill border-0">🎧 Podkastlar</span>
+                    <span class="badge bg-white text-dark px-3 py-2 rounded-pill border-0">🌐 Onlayn platformalar</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4 p-lg-5">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <div class="alert alert-warning d-flex align-items-center gap-3 mb-0">
+                            <i class="fa-solid fa-plug fa-lg text-warning"></i>
+                            <div>
+                                <div class="fw-semibold text-dark">Faol model: {{ provider_label }}</div>
+                                <div class="small text-muted">API kaliti avtomatik ravishda tanlandi.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="prompt" class="form-label fw-semibold">Qaysi mavzu uchun resurs kerak?</label>
+                        <textarea class="form-control form-control-lg" id="prompt" name="prompt" rows="5" placeholder="Masalan: 10-sinf biologiya darslari uchun laboratoriya ishlari va video darslar tavsiya et" required>{{ prompt_value }}</textarea>
+                        <div class="form-text">Fan, sinf, ko'nikma darajasi yoki til kabi qo'shimcha ma'lumotlarni ham kiriting.</div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">API kalitlari .env faylida ko'rsatilgan bo'lishi shart.</small>
+                        <button type="submit" class="btn btn-warning btn-lg px-4 text-dark">
+                            <i class="fas fa-book-open me-2"></i> Manbalar topish
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger border-0 shadow-sm">{{ error }}</div>
+        {% endif %}
+
+        {% if result %}
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0 fw-semibold">AI tavsiya etgan o'quv manbalari</h5>
+                    <small class="text-muted">Model: {{ provider_label }}</small>
+                </div>
+                <a href="{% url 'material_create' %}" class="btn btn-outline-warning btn-sm text-dark">
+                    <i class="fas fa-bookmark me-1"></i> Ro'yxatni materialga aylantirish
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="ai-result-box">{{ result|linebreaksbr }}</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

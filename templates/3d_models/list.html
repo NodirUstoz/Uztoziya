@@ -1,0 +1,370 @@
+{% extends 'base.html' %}
+
+{% block title %}3D Modellar - Ustoziya Platformasi{% endblock %}
+{% block page_title %}3D Modellar{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-cube me-2"></i>
+                    Barcha 3D Modellar
+                </h5>
+                <button class="btn btn-primary" onclick="showCreate3DModelModal()">
+                    <i class="fas fa-plus me-2"></i>
+                    Yangi 3D Model
+                </button>
+            </div>
+            <div class="card-body">
+                <!-- Filter Form -->
+                <div class="row mb-4">
+                    <div class="col-md-2">
+                        <select class="form-select" id="filterType">
+                            <option value="">Model turi</option>
+                            <option value="educational">Ta'limiy</option>
+                            <option value="scientific">Ilmiy</option>
+                            <option value="historical">Tarixiy</option>
+                            <option value="biological">Biologik</option>
+                            <option value="geological">Geologik</option>
+                            <option value="architectural">Arxitektura</option>
+                            <option value="artistic">Badiiy</option>
+                            <option value="technical">Texnik</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select" id="filterGrade">
+                            <option value="">Sinf</option>
+                            <option value="1-sinf">1-sinf</option>
+                            <option value="2-sinf">2-sinf</option>
+                            <option value="3-sinf">3-sinf</option>
+                            <option value="4-sinf">4-sinf</option>
+                            <option value="5-sinf">5-sinf</option>
+                            <option value="6-sinf">6-sinf</option>
+                            <option value="7-sinf">7-sinf</option>
+                            <option value="8-sinf">8-sinf</option>
+                            <option value="9-sinf">9-sinf</option>
+                            <option value="10-sinf">10-sinf</option>
+                            <option value="11-sinf">11-sinf</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="text" class="form-control" id="filterSubject" placeholder="Fan...">
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select" id="filterInteractive">
+                            <option value="">Interaktiv</option>
+                            <option value="true">Ha</option>
+                            <option value="false">Yo'q</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Qidirish...">
+                    </div>
+                    <div class="col-md-1">
+                        <button class="btn btn-outline-primary w-100" onclick="filterModels()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Models Grid -->
+                <div id="modelsGrid" class="row">
+                    <div class="col-12 text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Yuklanmoqda...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create 3D Model Modal -->
+<div class="modal fade" id="create3DModelModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Yangi 3D Model Yaratish</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="modelForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Model sarlavhasi</label>
+                            <input type="text" class="form-control" name="title" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Model turi</label>
+                            <select class="form-select" name="model_type" required>
+                                <option value="educational">Ta'limiy</option>
+                                <option value="scientific">Ilmiy</option>
+                                <option value="historical">Tarixiy</option>
+                                <option value="biological">Biologik</option>
+                                <option value="geological">Geologik</option>
+                                <option value="architectural">Arxitektura</option>
+                                <option value="artistic">Badiiy</option>
+                                <option value="technical">Texnik</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Sinf</label>
+                            <select class="form-select" name="grade_level" required>
+                                <option value="1-sinf">1-sinf</option>
+                                <option value="2-sinf">2-sinf</option>
+                                <option value="3-sinf">3-sinf</option>
+                                <option value="4-sinf">4-sinf</option>
+                                <option value="5-sinf">5-sinf</option>
+                                <option value="6-sinf">6-sinf</option>
+                                <option value="7-sinf">7-sinf</option>
+                                <option value="8-sinf">8-sinf</option>
+                                <option value="9-sinf">9-sinf</option>
+                                <option value="10-sinf">10-sinf</option>
+                                <option value="11-sinf">11-sinf</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Fan</label>
+                            <input type="text" class="form-control" name="subject" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Model tavsifi</label>
+                        <textarea class="form-control" name="description" rows="3" required></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">3D model fayli</label>
+                            <input type="file" class="form-control" name="model_file" accept=".obj,.fbx,.dae,.gltf,.glb,.ply,.stl" required>
+                            <small class="form-text text-muted">Qo'llab-quvvatlanadigan formatlar: OBJ, FBX, DAE, GLTF, GLB, PLY, STL</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Model rasmi (ixtiyoriy)</label>
+                            <input type="file" class="form-control" name="thumbnail" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="is_interactive" id="isInteractive">
+                            <label class="form-check-label" for="isInteractive">
+                                Interaktiv model
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bekor qilish</button>
+                <button type="button" class="btn btn-primary" onclick="create3DModel()">Yaratish</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showCreate3DModelModal() {
+    $('#create3DModelModal').modal('show');
+}
+
+function create3DModel() {
+    const form = document.getElementById('modelForm');
+    const formData = new FormData(form);
+    
+    fetch('/api/materials/3d-models/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.id) {
+            $('#create3DModelModal').modal('hide');
+            form.reset();
+            loadModels();
+            showAlert('3D model muvaffaqiyatli yaratildi!', 'success');
+        } else {
+            showAlert('Xatolik yuz berdi!', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('Xatolik yuz berdi!', 'error');
+    });
+}
+
+function loadModels() {
+    fetch('/api/materials/3d-models/')
+    .then(response => response.json())
+    .then(data => {
+        displayModels(data);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function displayModels(models) {
+    const container = document.getElementById('modelsGrid');
+    
+    if (models.length === 0) {
+        container.innerHTML = '<div class="col-12 text-center"><p class="text-muted">3D modellar topilmadi</p></div>';
+        return;
+    }
+    
+    let html = '';
+    models.forEach(model => {
+        html += `
+            <div class="col-md-4 mb-4">
+                <div class="card model-card">
+                    <div class="card-img-top model-thumbnail" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 200px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-cube fa-4x text-white"></i>
+                        ${model.is_interactive ? '<span class="badge bg-warning position-absolute top-0 end-0 m-2">Interaktiv</span>' : ''}
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">${model.title}</h5>
+                        <p class="card-text">${model.description.substring(0, 100)}...</p>
+                        <div class="d-flex flex-wrap gap-1 mb-2">
+                            <span class="badge bg-info">${model.grade_level}</span>
+                            <span class="badge bg-secondary">${model.subject}</span>
+                            <span class="badge bg-primary">${model.model_type_display}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <small class="text-muted">
+                                <i class="fas fa-user me-1"></i>${model.author_name}
+                            </small>
+                            <small class="text-muted">
+                                <i class="fas fa-download me-1"></i>${model.download_count}
+                            </small>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">${model.file_size_formatted}</small>
+                            <div class="rating">
+                                ${generateStars(model.rating)}
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button class="btn btn-primary btn-sm w-100" onclick="viewModel(${model.id})">
+                                <i class="fas fa-eye me-2"></i>
+                                Ko'rish
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+function generateStars(rating) {
+    let stars = '';
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    
+    for (let i = 0; i < fullStars; i++) {
+        stars += '<i class="fas fa-star text-warning"></i>';
+    }
+    
+    if (hasHalfStar) {
+        stars += '<i class="fas fa-star-half-alt text-warning"></i>';
+    }
+    
+    const emptyStars = 5 - Math.ceil(rating);
+    for (let i = 0; i < emptyStars; i++) {
+        stars += '<i class="far fa-star text-warning"></i>';
+    }
+    
+    return stars;
+}
+
+function filterModels() {
+    const type = document.getElementById('filterType').value;
+    const grade = document.getElementById('filterGrade').value;
+    const subject = document.getElementById('filterSubject').value;
+    const interactive = document.getElementById('filterInteractive').value;
+    const search = document.getElementById('searchInput').value;
+    
+    let url = '/api/materials/3d-models/';
+    const params = [];
+    
+    if (type) params.push(`type=${type}`);
+    if (grade) params.push(`grade=${grade}`);
+    if (subject) params.push(`subject=${subject}`);
+    if (interactive) params.push(`interactive=${interactive}`);
+    if (search) params.push(`search=${search}`);
+    
+    if (params.length > 0) {
+        url += '?' + params.join('&');
+    }
+    
+    fetch(url)
+    .then(response => response.json())
+    .then(data => {
+        displayModels(data);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function viewModel(id) {
+    window.open(`/3d-models/${id}/`, '_blank');
+}
+
+function downloadModel(id) {
+    fetch(`/api/materials/3d-models/${id}/download/`)
+    .then(response => {
+        if (response.ok) {
+            return response.blob();
+        }
+        throw new Error('Download failed');
+    })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `model_${id}`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('Yuklab olishda xatolik!', 'error');
+    });
+}
+
+// Load models on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadModels();
+});
+</script>
+
+<style>
+.model-card {
+    transition: transform 0.3s ease;
+}
+
+.model-card:hover {
+    transform: translateY(-5px);
+}
+
+.model-thumbnail {
+    cursor: pointer;
+    position: relative;
+}
+
+.rating {
+    font-size: 0.8rem;
+}
+</style>
+{% endblock %}

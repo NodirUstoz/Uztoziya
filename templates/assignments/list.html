@@ -1,0 +1,288 @@
+{% extends 'base.html' %}
+
+{% block title %}Topshiriqlar - Ustoziya Platformasi{% endblock %}
+{% block page_title %}Topshiriqlar{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-tasks me-2"></i>
+                    Barcha Topshiriqlar
+                </h5>
+                <button class="btn btn-primary" onclick="showCreateAssignmentModal()">
+                    <i class="fas fa-plus me-2"></i>
+                    Yangi Topshiriq
+                </button>
+            </div>
+            <div class="card-body">
+                <!-- Filter Form -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <select class="form-select" id="filterType">
+                            <option value="">Topshiriq turi</option>
+                            <option value="homework">Uy vazifasi</option>
+                            <option value="classwork">Dars ishi</option>
+                            <option value="project">Loyiha</option>
+                            <option value="research">Tadqiqot</option>
+                            <option value="presentation">Taqdimot</option>
+                            <option value="test_assignment">Test topshirish</option>
+                            <option value="creative">Ijodiy ish</option>
+                            <option value="practical">Amaliy ish</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="filterGrade">
+                            <option value="">Sinf</option>
+                            <option value="1-sinf">1-sinf</option>
+                            <option value="2-sinf">2-sinf</option>
+                            <option value="3-sinf">3-sinf</option>
+                            <option value="4-sinf">4-sinf</option>
+                            <option value="5-sinf">5-sinf</option>
+                            <option value="6-sinf">6-sinf</option>
+                            <option value="7-sinf">7-sinf</option>
+                            <option value="8-sinf">8-sinf</option>
+                            <option value="9-sinf">9-sinf</option>
+                            <option value="10-sinf">10-sinf</option>
+                            <option value="11-sinf">11-sinf</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Qidirish...">
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-outline-primary w-100" onclick="filterAssignments()">
+                            <i class="fas fa-search me-2"></i>
+                            Qidirish
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Assignments List -->
+                <div id="assignmentsList">
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Yuklanmoqda...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Assignment Modal -->
+<div class="modal fade" id="createAssignmentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Yangi Topshiriq Yaratish</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="assignmentForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Topshiriq sarlavhasi</label>
+                            <input type="text" class="form-control" name="title" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Topshiriq turi</label>
+                            <select class="form-select" name="assignment_type" required>
+                                <option value="homework">Uy vazifasi</option>
+                                <option value="classwork">Dars ishi</option>
+                                <option value="project">Loyiha</option>
+                                <option value="research">Tadqiqot</option>
+                                <option value="presentation">Taqdimot</option>
+                                <option value="test_assignment">Test topshirish</option>
+                                <option value="creative">Ijodiy ish</option>
+                                <option value="practical">Amaliy ish</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Sinf</label>
+                            <select class="form-select" name="grade_level" required>
+                                <option value="1-sinf">1-sinf</option>
+                                <option value="2-sinf">2-sinf</option>
+                                <option value="3-sinf">3-sinf</option>
+                                <option value="4-sinf">4-sinf</option>
+                                <option value="5-sinf">5-sinf</option>
+                                <option value="6-sinf">6-sinf</option>
+                                <option value="7-sinf">7-sinf</option>
+                                <option value="8-sinf">8-sinf</option>
+                                <option value="9-sinf">9-sinf</option>
+                                <option value="10-sinf">10-sinf</option>
+                                <option value="11-sinf">11-sinf</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Fan</label>
+                            <input type="text" class="form-control" name="subject" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Topshiriq muddati</label>
+                            <input type="datetime-local" class="form-control" name="due_date" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Maksimal ball</label>
+                            <input type="number" class="form-control" name="max_points" value="100" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Topshiriq tavsifi</label>
+                        <textarea class="form-control" name="description" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Qo'shimcha ko'rsatmalar</label>
+                        <textarea class="form-control" name="instructions" rows="2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bekor qilish</button>
+                <button type="button" class="btn btn-primary" onclick="createAssignment()">Yaratish</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showCreateAssignmentModal() {
+    $('#createAssignmentModal').modal('show');
+}
+
+function createAssignment() {
+    const form = document.getElementById('assignmentForm');
+    const formData = new FormData(form);
+    
+    fetch('/api/materials/assignments/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.id) {
+            $('#createAssignmentModal').modal('hide');
+            form.reset();
+            loadAssignments();
+            showAlert('Topshiriq muvaffaqiyatli yaratildi!', 'success');
+        } else {
+            showAlert('Xatolik yuz berdi!', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('Xatolik yuz berdi!', 'error');
+    });
+}
+
+function loadAssignments() {
+    fetch('/api/materials/assignments/')
+    .then(response => response.json())
+    .then(data => {
+        displayAssignments(data);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function displayAssignments(assignments) {
+    const container = document.getElementById('assignmentsList');
+    
+    if (assignments.length === 0) {
+        container.innerHTML = '<div class="text-center"><p class="text-muted">Topshiriqlar topilmadi</p></div>';
+        return;
+    }
+    
+    let html = '';
+    assignments.forEach(assignment => {
+        html += `
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5 class="card-title">${assignment.title}</h5>
+                            <p class="card-text">${assignment.description}</p>
+                            <div class="d-flex flex-wrap gap-2 mb-2">
+                                <span class="badge bg-primary">${assignment.assignment_type_display}</span>
+                                <span class="badge bg-info">${assignment.grade_level}</span>
+                                <span class="badge bg-secondary">${assignment.subject}</span>
+                                <span class="badge bg-warning">${assignment.max_points} ball</span>
+                            </div>
+                            <small class="text-muted">
+                                <i class="fas fa-user me-1"></i>${assignment.teacher_name} • 
+                                <i class="fas fa-clock me-1"></i>${new Date(assignment.due_date).toLocaleDateString('uz-UZ')}
+                            </small>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="mb-2">
+                                <span class="badge bg-success">${assignment.submissions_count} topshirish</span>
+                            </div>
+                            <div>
+                                <button class="btn btn-sm btn-outline-primary me-2" onclick="viewAssignment(${assignment.id})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success" onclick="gradeAssignments(${assignment.id})">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+function filterAssignments() {
+    const type = document.getElementById('filterType').value;
+    const grade = document.getElementById('filterGrade').value;
+    const search = document.getElementById('searchInput').value;
+    
+    let url = '/api/materials/assignments/';
+    const params = [];
+    
+    if (type) params.push(`type=${type}`);
+    if (grade) params.push(`grade=${grade}`);
+    if (search) params.push(`search=${search}`);
+    
+    if (params.length > 0) {
+        url += '?' + params.join('&');
+    }
+    
+    fetch(url)
+    .then(response => response.json())
+    .then(data => {
+        displayAssignments(data);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function viewAssignment(id) {
+    window.location.href = `/assignments/${id}/`;
+}
+
+function gradeAssignments(id) {
+    window.location.href = `/assignments/${id}/grade/`;
+}
+
+// Load assignments on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadAssignments();
+});
+</script>
+{% endblock %}

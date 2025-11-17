@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Profil - Ustoziya Platformasi{% endblock %}
+{% block page_title %}Profil{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-user me-2"></i>
+                    Profil Ma'lumotlari
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="first_name" class="form-label">Ism</label>
+                            <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="last_name" class="form-label">Familiya</label>
+                            <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">Fan</label>
+                        <select class="form-select" id="subject" name="subject">
+                            <option value="mathematics" {% if user.subject == 'mathematics' %}selected{% endif %}>Matematika</option>
+                            <option value="physics" {% if user.subject == 'physics' %}selected{% endif %}>Fizika</option>
+                            <option value="chemistry" {% if user.subject == 'chemistry' %}selected{% endif %}>Kimyo</option>
+                            <option value="biology" {% if user.subject == 'biology' %}selected{% endif %}>Biologiya</option>
+                            <option value="geography" {% if user.subject == 'geography' %}selected{% endif %}>Geografiya</option>
+                            <option value="history" {% if user.subject == 'history' %}selected{% endif %}>Tarix</option>
+                            <option value="literature" {% if user.subject == 'literature' %}selected{% endif %}>Adabiyot</option>
+                            <option value="language" {% if user.subject == 'language' %}selected{% endif %}>Til va adabiyot</option>
+                            <option value="english" {% if user.subject == 'english' %}selected{% endif %}>Ingliz tili</option>
+                            <option value="russian" {% if user.subject == 'russian' %}selected{% endif %}>Rus tili</option>
+                            <option value="computer_science" {% if user.subject == 'computer_science' %}selected{% endif %}>Informatika</option>
+                            <option value="art" {% if user.subject == 'art' %}selected{% endif %}>San'at</option>
+                            <option value="physical_education" {% if user.subject == 'physical_education' %}selected{% endif %}>Jismoniy tarbiya</option>
+                            <option value="other" {% if user.subject == 'other' %}selected{% endif %}>Boshqa</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="school" class="form-label">Maktab</label>
+                        <input type="text" class="form-control" id="school" name="school" value="{{ user.school }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Telefon raqami</label>
+                        <input type="tel" class="form-control" id="phone" name="phone" value="{{ user.phone }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="bio" class="form-label">Biografiya</label>
+                        <textarea class="form-control" id="bio" name="bio" rows="3">{{ user.bio }}</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="avatar" class="form-label">Avatar</label>
+                        <input type="file" class="form-control" id="avatar" name="avatar" accept="image/*">
+                        {% if user.avatar %}
+                            <div class="mt-2">
+                                <img src="{{ user.avatar.url }}" alt="Avatar" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            Saqlash
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

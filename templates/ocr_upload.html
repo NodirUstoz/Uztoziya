@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+
+{% block title %}OCR Test Tekshirish - Ustoziya Platformasi{% endblock %}
+{% block page_title %}OCR Test Tekshirish{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-camera me-2"></i>
+                    Test Rasmini Yuklash
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="ocrUploadForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Test tanlash -->
+                    <div class="mb-4">
+                        <label for="testSelect" class="form-label">Test tanlang</label>
+                        <select class="form-select" id="testSelect" name="test_id" required>
+                            <option value="">Test tanlang...</option>
+                            {% for test in tests %}
+                            <option value="{{ test.id }}">{{ test.title }} ({{ test.grade_level }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Rasm yuklash -->
+                    <div class="mb-4">
+                        <label for="imageInput" class="form-label">Test rasmini yuklang</label>
+                        <div class="upload-area" id="uploadArea">
+                            <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                            <h5>Rasmni bu yerga torting yoki tanlang</h5>
+                            <p class="text-muted">JPG, PNG, PDF formatlari qo'llab-quvvatlanadi</p>
+                            <input type="file" id="imageInput" name="image" accept="image/*,.pdf" class="d-none" required>
+                            <button type="button" class="btn btn-primary" onclick="document.getElementById('imageInput').click()">
+                                <i class="fas fa-folder-open me-2"></i>
+                                Fayl tanlash
+                            </button>
+                        </div>
+                        <div id="fileInfo" class="mt-2" style="display: none;">
+                            <div class="alert alert-info">
+                                <i class="fas fa-file me-2"></i>
+                                <span id="fileName"></span>
+                                <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="clearFile()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Yuklash tugmasi -->
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                            <i class="fas fa-upload me-2"></i>
+                            Rasmni qayta ishlash
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Natijalar -->
+        <div id="results" class="mt-4" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Qayta ishlash natijasi
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="resultContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadArea = document.getElementById('uploadArea');
+    const imageInput = document.getElementById('imageInput');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const form = document.getElementById('ocrUploadForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const results = document.getElementById('results');
+    const resultContent = document.getElementById('resultContent');
+    
+    // Drag and drop functionality
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+    
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+    });
+    
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            imageInput.files = files;
+            showFileInfo(files[0]);
+        }
+    });
+    
+    // File input change
+    imageInput.addEventListener('change', function(e) {
+        if (e.target.files.length > 0) {
+            showFileInfo(e.target.files[0]);
+        }
+    });
+    
+    function showFileInfo(file) {
+        fileName.textContent = file.name + ' (' + formatFileSize(file.size) + ')';
+        fileInfo.style.display = 'block';
+    }
+    
+    function clearFile() {
+        imageInput.value = '';
+        fileInfo.style.display = 'none';
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        
+        // Loading state
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Qayta ishlanmoqda...';
+        submitBtn.disabled = true;
+        
+        fetch('{% url "ocr_processing:upload_test_image" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                showResults(data);
+            } else {
+                showError(data.error || 'Xatolik yuz berdi');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError('Server bilan aloqa xatoligi');
+        })
+        .finally(() => {
+            submitBtn.innerHTML = '<i class="fas fa-upload me-2"></i>Rasmni qayta ishlash';
+            submitBtn.disabled = false;
+        });
+    });
+    
+    function showResults(data) {
+        let html = '<div class="alert alert-success">';
+        html += '<h6><i class="fas fa-check-circle me-2"></i>' + data.message + '</h6>';
+        html += '</div>';
+        
+        if (data.ocr_processing) {
+            html += '<div class="row">';
+            html += '<div class="col-md-6">';
+            html += '<h6>Qayta ishlangan matn:</h6>';
+            html += '<div class="bg-light p-3 rounded">';
+            html += '<pre>' + (data.ocr_processing.processed_text || 'Matn topilmadi') + '</pre>';
+            html += '</div>';
+            html += '</div>';
+            
+            html += '<div class="col-md-6">';
+            html += '<h6>Ishonch darajasi:</h6>';
+            html += '<div class="progress mb-3">';
+            html += '<div class="progress-bar" style="width: ' + data.ocr_processing.confidence_score + '%"></div>';
+            html += '</div>';
+            html += '<p class="text-muted">' + data.ocr_processing.confidence_score + '%</p>';
+            html += '</div>';
+            html += '</div>';
+        }
+        
+        if (data.test_result) {
+            html += '<div class="alert alert-info mt-3">';
+            html += '<h6><i class="fas fa-chart-line me-2"></i>Test natijasi:</h6>';
+            html += '<div class="row">';
+            html += '<div class="col-md-3"><strong>O\'quvchi:</strong> ' + data.test_result.student_name + '</div>';
+            html += '<div class="col-md-3"><strong>Ball:</strong> ' + data.test_result.score + '</div>';
+            html += '<div class="col-md-3"><strong>Foiz:</strong> ' + data.test_result.percentage + '%</div>';
+            html += '<div class="col-md-3"><strong>Baholash:</strong> ' + data.test_result.grade + '</div>';
+            html += '</div>';
+            html += '</div>';
+        }
+        
+        resultContent.innerHTML = html;
+        results.style.display = 'block';
+    }
+    
+    function showError(message) {
+        let html = '<div class="alert alert-danger">';
+        html += '<h6><i class="fas fa-exclamation-triangle me-2"></i>Xatolik</h6>';
+        html += '<p>' + message + '</p>';
+        html += '</div>';
+        
+        resultContent.innerHTML = html;
+        results.style.display = 'block';
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+
+{% block title %}Yangi Material Yaratish - Ustoziya Platformasi{% endblock %}
+{% block page_title %}Yangi Material Yaratish{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-plus me-2"></i>
+                    Yangi Material Yaratish
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" id="materialForm">
+                    {% csrf_token %}
+                    
+                    <!-- Material asosiy ma'lumotlari -->
+                    <div class="mb-4">
+                        <h6 class="text-primary mb-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Material Asosiy Ma'lumotlari
+                        </h6>
+                        
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Material Sarlavhasi *</label>
+                            <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Material Tavsifi *</label>
+                            <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="material_type" class="form-label">Material Turi *</label>
+                                <select class="form-select" id="material_type" name="material_type" required>
+                                    <option value="">Material turini tanlang...</option>
+                                    <option value="presentation">PPT Taqdimot</option>
+                                    <option value="document">Word Hujjat</option>
+                                    <option value="handout">Tarqatma Material</option>
+                                    <option value="worksheet">Ish Varaqasi</option>
+                                    <option value="test">Test</option>
+                                    <option value="methodology">Metodika</option>
+                                    <option value="fact">Qiziqarli Fakt</option>
+                                    <option value="other">Boshqa</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="grade_level" class="form-label">Sinf Darajasi</label>
+                                <input type="text" class="form-control" id="grade_level" name="grade_level" placeholder="Masalan: 5-sinf, 9-sinf">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="tags" class="form-label">Teglar</label>
+                            <input type="text" class="form-control" id="tags" name="tags" placeholder="Vergul bilan ajrating: matematika, algebra, geometriya">
+                            <div class="form-text">Teglarni vergul bilan ajrating</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Fayl yuklash -->
+                    <div class="mb-4">
+                        <h6 class="text-success mb-3">
+                            <i class="fas fa-upload me-2"></i>
+                            Fayl Yuklash
+                        </h6>
+                        
+                        <div class="upload-area" id="uploadArea">
+                            <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                            <h5>Faylni bu yerga torting yoki tanlang</h5>
+                            <p class="text-muted">PPT, Word, PDF, rasm formatlari qo'llab-quvvatlanadi</p>
+                            <input type="file" id="file" name="file" accept=".ppt,.pptx,.doc,.docx,.pdf,.jpg,.jpeg,.png" class="d-none" required>
+                            <button type="button" class="btn btn-primary" onclick="document.getElementById('file').click()">
+                                <i class="fas fa-folder-open me-2"></i>
+                                Fayl Tanlash
+                            </button>
+                        </div>
+                        <div id="fileInfo" class="mt-2" style="display: none;">
+                            <div class="alert alert-info">
+                                <i class="fas fa-file me-2"></i>
+                                <span id="fileName"></span>
+                                <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="clearFile()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Kichik rasm (ixtiyoriy) -->
+                    <div class="mb-4">
+                        <h6 class="text-warning mb-3">
+                            <i class="fas fa-image me-2"></i>
+                            Kichik Rasm (Ixtiyoriy)
+                        </h6>
+                        
+                        <div class="upload-area" id="thumbnailArea" style="height: 150px;">
+                            <i class="fas fa-image fa-2x text-warning mb-2"></i>
+                            <p class="mb-2">Kichik rasm yuklang</p>
+                            <input type="file" id="thumbnail" name="thumbnail" accept="image/*" class="d-none">
+                            <button type="button" class="btn btn-warning btn-sm" onclick="document.getElementById('thumbnail').click()">
+                                <i class="fas fa-image me-1"></i>
+                                Rasm Tanlash
+                            </button>
+                        </div>
+                        <div id="thumbnailInfo" class="mt-2" style="display: none;">
+                            <div class="alert alert-warning">
+                                <i class="fas fa-image me-2"></i>
+                                <span id="thumbnailName"></span>
+                                <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="clearThumbnail()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sozlamalar -->
+                    <div class="mb-4">
+                        <h6 class="text-info mb-3">
+                            <i class="fas fa-cog me-2"></i>
+                            Sozlamalar
+                        </h6>
+                        
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="is_public" name="is_public" checked>
+                            <label class="form-check-label" for="is_public">
+                                Umumiy foydalanish (boshqa o'qituvchilar ko'ra oladi)
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Saqlash tugmasi -->
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-2"></i>
+                            Material Yaratish
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadArea = document.getElementById('uploadArea');
+    const thumbnailArea = document.getElementById('thumbnailArea');
+    const fileInput = document.getElementById('file');
+    const thumbnailInput = document.getElementById('thumbnail');
+    const fileInfo = document.getElementById('fileInfo');
+    const thumbnailInfo = document.getElementById('thumbnailInfo');
+    const fileName = document.getElementById('fileName');
+    const thumbnailName = document.getElementById('thumbnailName');
+    
+    // Fayl yuklash
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+    
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+    });
+    
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            showFileInfo(files[0]);
+        }
+    });
+    
+    fileInput.addEventListener('change', function(e) {
+        if (e.target.files.length > 0) {
+            showFileInfo(e.target.files[0]);
+        }
+    });
+    
+    // Kichik rasm yuklash
+    thumbnailArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        thumbnailArea.classList.add('dragover');
+    });
+    
+    thumbnailArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        thumbnailArea.classList.remove('dragover');
+    });
+    
+    thumbnailArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        thumbnailArea.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0].type.startsWith('image/')) {
+            thumbnailInput.files = files;
+            showThumbnailInfo(files[0]);
+        }
+    });
+    
+    thumbnailInput.addEventListener('change', function(e) {
+        if (e.target.files.length > 0) {
+            showThumbnailInfo(e.target.files[0]);
+        }
+    });
+    
+    function showFileInfo(file) {
+        fileName.textContent = file.name + ' (' + formatFileSize(file.size) + ')';
+        fileInfo.style.display = 'block';
+    }
+    
+    function showThumbnailInfo(file) {
+        thumbnailName.textContent = file.name + ' (' + formatFileSize(file.size) + ')';
+        thumbnailInfo.style.display = 'block';
+    }
+    
+    function clearFile() {
+        fileInput.value = '';
+        fileInfo.style.display = 'none';
+    }
+    
+    function clearThumbnail() {
+        thumbnailInput.value = '';
+        thumbnailInfo.style.display = 'none';
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    // Form yuborish
+    document.getElementById('materialForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        // Loading state
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Yaratilmoqda...';
+        submitBtn.disabled = true;
+        
+        fetch('{% url "materials:material_create" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Material muvaffaqiyatli yaratildi!');
+                window.location.href = '{% url "materials_list" %}';
+            } else {
+                alert('Xatolik: ' + (data.error || 'Noma\'lum xatolik'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Server xatoligi yuz berdi');
+        })
+        .finally(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        });
+    });
+});
+</script>
+{% endblock %}

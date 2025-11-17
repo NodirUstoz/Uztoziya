@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+
+{% block title %}Testlar - Ustoziya Platformasi{% endblock %}
+{% block page_title %}Testlar{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-question-circle me-2"></i>
+                    Barcha Testlar
+                </h5>
+                <a href="{% url 'test_create_page' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>
+                    Yangi Test
+                </a>
+            </div>
+            <div class="card-body">
+                <!-- Filter Form -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <select class="form-select" id="filterGrade" onchange="filterTests()">
+                            <option value="">Barcha sinflar</option>
+                            <option value="1-sinf">1-sinf</option>
+                            <option value="2-sinf">2-sinf</option>
+                            <option value="3-sinf">3-sinf</option>
+                            <option value="4-sinf">4-sinf</option>
+                            <option value="5-sinf">5-sinf</option>
+                            <option value="6-sinf">6-sinf</option>
+                            <option value="7-sinf">7-sinf</option>
+                            <option value="8-sinf">8-sinf</option>
+                            <option value="9-sinf">9-sinf</option>
+                            <option value="10-sinf">10-sinf</option>
+                            <option value="11-sinf">11-sinf</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="filterSubject" onchange="filterTests()">
+                            <option value="">Barcha fanlar</option>
+                            <option value="matematika">Matematika</option>
+                            <option value="fizika">Fizika</option>
+                            <option value="kimyo">Kimyo</option>
+                            <option value="biologiya">Biologiya</option>
+                            <option value="geografiya">Geografiya</option>
+                            <option value="tarix">Tarix</option>
+                            <option value="adabiyot">Adabiyot</option>
+                            <option value="ingliz_tili">Ingliz tili</option>
+                            <option value="informatika">Informatika</option>
+                            <option value="rus_tili">Rus tili</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="filterDifficulty" onchange="filterTests()">
+                            <option value="">Barcha qiyinliklar</option>
+                            <option value="easy">Oson</option>
+                            <option value="medium">O'rta</option>
+                            <option value="hard">Qiyin</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Qidirish..." onkeyup="filterTests()">
+                    </div>
+                </div>
+
+                <!-- Tests Grid -->
+                <div id="testsGrid">
+                    {% if tests %}
+                        <div class="row">
+                            {% for test in tests %}
+                            <div class="col-md-6 col-lg-4 mb-4 test-card" 
+                                 data-grade="{{ test.grade_level }}" 
+                                 data-subject="{{ test.subject }}" 
+                                 data-difficulty="{{ test.difficulty }}"
+                                 data-title="{{ test.title|lower }}"
+                                 data-description="{{ test.description|lower }}">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ test.title }}</h6>
+                                        <p class="card-text text-muted">{{ test.description|truncatewords:20 }}</p>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="badge bg-success">{{ test.get_difficulty_display }}</span>
+                                            <small class="text-muted">{{ test.total_questions }} savol</small>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="badge bg-info">{{ test.grade_level }}</span>
+                                            <small class="text-muted">{{ test.time_limit }} daqiqa</small>
+                                        </div>
+                                        <div class="mt-2">
+                                            <span class="badge bg-secondary">{{ test.subject }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <div class="d-flex justify-content-between">
+                                            <small class="text-muted">{{ test.author.get_full_name }}</small>
+                                            <a href="#" class="btn btn-sm btn-outline-primary">Ko'rish</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-question-circle fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Hozircha testlar yo'q</h5>
+                        <p class="text-muted">Birinchi testni yarating</p>
+                        <a href="{% url 'test_create_page' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>
+                            Yangi Test
+                        </a>
+                    </div>
+                {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterTests() {
+    const gradeFilter = document.getElementById('filterGrade').value.toLowerCase();
+    const subjectFilter = document.getElementById('filterSubject').value.toLowerCase();
+    const difficultyFilter = document.getElementById('filterDifficulty').value.toLowerCase();
+    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+    
+    const testCards = document.querySelectorAll('.test-card');
+    let visibleCount = 0;
+    
+    testCards.forEach(card => {
+        const grade = card.getAttribute('data-grade').toLowerCase();
+        const subject = card.getAttribute('data-subject').toLowerCase();
+        const difficulty = card.getAttribute('data-difficulty').toLowerCase();
+        const title = card.getAttribute('data-title');
+        const description = card.getAttribute('data-description');
+        
+        let show = true;
+        
+        // Grade filter
+        if (gradeFilter && !grade.includes(gradeFilter)) {
+            show = false;
+        }
+        
+        // Subject filter
+        if (subjectFilter && !subject.includes(subjectFilter)) {
+            show = false;
+        }
+        
+        // Difficulty filter
+        if (difficultyFilter && difficulty !== difficultyFilter) {
+            show = false;
+        }
+        
+        // Search filter
+        if (searchInput && !title.includes(searchInput) && !description.includes(searchInput)) {
+            show = false;
+        }
+        
+        if (show) {
+            card.style.display = 'block';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    // Show message if no tests found
+    let noResultsMsg = document.getElementById('noResultsMsg');
+    if (visibleCount === 0) {
+        if (!noResultsMsg) {
+            noResultsMsg = document.createElement('div');
+            noResultsMsg.id = 'noResultsMsg';
+            noResultsMsg.className = 'text-center py-5';
+            noResultsMsg.innerHTML = `
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Hech qanday test topilmadi</h5>
+                <p class="text-muted">Filtrlarni o'zgartiring yoki qidiruv so'zini o'zgartiring</p>
+            `;
+            document.getElementById('testsGrid').appendChild(noResultsMsg);
+        }
+        noResultsMsg.style.display = 'block';
+    } else {
+        if (noResultsMsg) {
+            noResultsMsg.style.display = 'none';
+        }
+    }
+}
+
+// Add clear filters button
+document.addEventListener('DOMContentLoaded', function() {
+    const filterRow = document.querySelector('.row.mb-4');
+    const clearButton = document.createElement('div');
+    clearButton.className = 'col-12 mt-2';
+    clearButton.innerHTML = `
+        <button class="btn btn-outline-secondary btn-sm" onclick="clearFilters()">
+            <i class="fas fa-times me-2"></i>
+            Filtrlarni tozalash
+        </button>
+    `;
+    filterRow.appendChild(clearButton);
+});
+
+function clearFilters() {
+    document.getElementById('filterGrade').value = '';
+    document.getElementById('filterSubject').value = '';
+    document.getElementById('filterDifficulty').value = '';
+    document.getElementById('searchInput').value = '';
+    filterTests();
+}
+</script>
+
+<style>
+.test-card {
+    transition: all 0.3s ease;
+}
+
+.test-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.form-select, .form-control {
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    transition: border-color 0.3s ease;
+}
+
+.form-select:focus, .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.badge {
+    font-size: 0.75rem;
+    padding: 0.4em 0.6em;
+}
+</style>
+{% endblock %}

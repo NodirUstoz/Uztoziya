@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+
+{% block title %}Materiallar - Ustoziya Platformasi{% endblock %}
+{% block page_title %}Materiallar{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-file-alt me-2"></i>
+                    Barcha Materiallar
+                </h5>
+                <a href="{% url 'material_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>
+                    Yangi Material
+                </a>
+            </div>
+            <div class="card-body">
+                <!-- Filter Form -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <select class="form-select" id="filterGrade" onchange="filterMaterials()">
+                            <option value="">Barcha sinflar</option>
+                            <option value="1-sinf">1-sinf</option>
+                            <option value="2-sinf">2-sinf</option>
+                            <option value="3-sinf">3-sinf</option>
+                            <option value="4-sinf">4-sinf</option>
+                            <option value="5-sinf">5-sinf</option>
+                            <option value="6-sinf">6-sinf</option>
+                            <option value="7-sinf">7-sinf</option>
+                            <option value="8-sinf">8-sinf</option>
+                            <option value="9-sinf">9-sinf</option>
+                            <option value="10-sinf">10-sinf</option>
+                            <option value="11-sinf">11-sinf</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="filterType" onchange="filterMaterials()">
+                            <option value="">Barcha turlar</option>
+                            <option value="presentation">PPT taqdimot</option>
+                            <option value="document">Word hujjat</option>
+                            <option value="handout">Tarqatma material</option>
+                            <option value="worksheet">Ish varaqasi</option>
+                            <option value="test">Test</option>
+                            <option value="video">Video darslik</option>
+                            <option value="audio">Audio material</option>
+                            <option value="image">Rasm galereyasi</option>
+                            <option value="3d_model">3D model</option>
+                            <option value="interactive">Interaktiv material</option>
+                            <option value="simulation">Simulyatsiya</option>
+                            <option value="animation">Animatsiya</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="filterSubject" onchange="filterMaterials()">
+                            <option value="">Barcha fanlar</option>
+                            <option value="matematika">Matematika</option>
+                            <option value="fizika">Fizika</option>
+                            <option value="kimyo">Kimyo</option>
+                            <option value="biologiya">Biologiya</option>
+                            <option value="geografiya">Geografiya</option>
+                            <option value="tarix">Tarix</option>
+                            <option value="adabiyot">Adabiyot</option>
+                            <option value="ingliz_tili">Ingliz tili</option>
+                            <option value="informatika">Informatika</option>
+                            <option value="rus_tili">Rus tili</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Qidirish..." onkeyup="filterMaterials()">
+                    </div>
+                </div>
+
+                <!-- Materials Grid -->
+                <div id="materialsGrid">
+                    {% if materials %}
+                        <div class="row">
+                            {% for material in materials %}
+                            <div class="col-md-6 col-lg-4 mb-4 material-card" 
+                                 data-grade="{{ material.grade_level }}" 
+                                 data-type="{{ material.material_type }}" 
+                                 data-subject="{{ material.author.subject }}"
+                                 data-title="{{ material.title|lower }}"
+                                 data-description="{{ material.description|lower }}">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ material.title }}</h6>
+                                        <p class="card-text text-muted">{{ material.description|truncatewords:20 }}</p>
+                                        <div class="d-flex flex-wrap gap-1 mb-2">
+                                            <span class="badge bg-primary">{{ material.get_material_type_display }}</span>
+                                            {% if material.grade_level %}
+                                                <span class="badge bg-info">{{ material.grade_level }}</span>
+                                            {% endif %}
+                                            {% if material.author.subject %}
+                                                <span class="badge bg-secondary">{{ material.author.subject }}</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">{{ material.download_count }} yuklab olish</small>
+                                            {% if material.rating %}
+                                                <div class="rating">
+                                                    {% for i in "12345" %}
+                                                        {% if forloop.counter <= material.rating %}
+                                                            <i class="fas fa-star text-warning"></i>
+                                                        {% else %}
+                                                            <i class="far fa-star text-warning"></i>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <div class="d-flex justify-content-between">
+                                            <small class="text-muted">{{ material.author.get_full_name }}</small>
+                                            <a href="#" class="btn btn-sm btn-outline-primary">Ko'rish</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Hozircha materiallar yo'q</h5>
+                        <p class="text-muted">Birinchi materialni qo'shing</p>
+                        <a href="{% url 'material_create' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>
+                            Yangi Material
+                        </a>
+                    </div>
+                {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterMaterials() {
+    const gradeFilter = document.getElementById('filterGrade').value.toLowerCase();
+    const typeFilter = document.getElementById('filterType').value.toLowerCase();
+    const subjectFilter = document.getElementById('filterSubject').value.toLowerCase();
+    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+    
+    const materialCards = document.querySelectorAll('.material-card');
+    let visibleCount = 0;
+    
+    materialCards.forEach(card => {
+        const grade = card.getAttribute('data-grade').toLowerCase();
+        const type = card.getAttribute('data-type').toLowerCase();
+        const subject = card.getAttribute('data-subject').toLowerCase();
+        const title = card.getAttribute('data-title');
+        const description = card.getAttribute('data-description');
+        
+        let show = true;
+        
+        // Grade filter
+        if (gradeFilter && !grade.includes(gradeFilter)) {
+            show = false;
+        }
+        
+        // Type filter
+        if (typeFilter && type !== typeFilter) {
+            show = false;
+        }
+        
+        // Subject filter
+        if (subjectFilter && !subject.includes(subjectFilter)) {
+            show = false;
+        }
+        
+        // Search filter
+        if (searchInput && !title.includes(searchInput) && !description.includes(searchInput)) {
+            show = false;
+        }
+        
+        if (show) {
+            card.style.display = 'block';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    // Show message if no materials found
+    let noResultsMsg = document.getElementById('noResultsMsg');
+    if (visibleCount === 0) {
+        if (!noResultsMsg) {
+            noResultsMsg = document.createElement('div');
+            noResultsMsg.id = 'noResultsMsg';
+            noResultsMsg.className = 'text-center py-5';
+            noResultsMsg.innerHTML = `
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Hech qanday material topilmadi</h5>
+                <p class="text-muted">Filtrlarni o'zgartiring yoki qidiruv so'zini o'zgartiring</p>
+            `;
+            document.getElementById('materialsGrid').appendChild(noResultsMsg);
+        }
+        noResultsMsg.style.display = 'block';
+    } else {
+        if (noResultsMsg) {
+            noResultsMsg.style.display = 'none';
+        }
+    }
+}
+
+// Add clear filters button
+document.addEventListener('DOMContentLoaded', function() {
+    const filterRow = document.querySelector('.row.mb-4');
+    const clearButton = document.createElement('div');
+    clearButton.className = 'col-12 mt-2';
+    clearButton.innerHTML = `
+        <button class="btn btn-outline-secondary btn-sm" onclick="clearFilters()">
+            <i class="fas fa-times me-2"></i>
+            Filtrlarni tozalash
+        </button>
+    `;
+    filterRow.appendChild(clearButton);
+});
+
+function clearFilters() {
+    document.getElementById('filterGrade').value = '';
+    document.getElementById('filterType').value = '';
+    document.getElementById('filterSubject').value = '';
+    document.getElementById('searchInput').value = '';
+    filterMaterials();
+}
+</script>
+
+<style>
+.material-card {
+    transition: all 0.3s ease;
+}
+
+.material-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.form-select, .form-control {
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    transition: border-color 0.3s ease;
+}
+
+.form-select:focus, .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.badge {
+    font-size: 0.75rem;
+    padding: 0.4em 0.6em;
+}
+
+.rating {
+    font-size: 0.8rem;
+}
+</style>
+{% endblock %}
