@@ -3,7 +3,7 @@ services:
     name: ustoziya
     env: python
     plan: free
-    pythonVersion: 3.11.0
+    pythonVersion: "3.11.0"
     buildCommand: pip install -r requirements.txt && python manage.py migrate --noinput && python manage.py collectstatic --noinput
     startCommand: gunicorn ustoziya_platform.wsgi:application --bind 0.0.0.0:$PORT
     envVars:

@@ -83,13 +83,32 @@ WSGI_APPLICATION = 'ustoziya_platform.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# Use PostgreSQL in production (Render), SQLite in development
+# Database configuration
+# PythonAnywhere: SQLite (free) yoki MySQL (paid)
+# Render: PostgreSQL via DATABASE_URL
 DATABASE_URL = config('DATABASE_URL', default='')
-if DATABASE_URL:
+
+# PythonAnywhere MySQL uchun (ixtiyoriy)
+if config('USE_MYSQL', default=False, cast=bool):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': config('MYSQL_DB_NAME', default=''),
+            'USER': config('MYSQL_DB_USER', default=''),
+            'PASSWORD': config('MYSQL_DB_PASSWORD', default=''),
+            'HOST': config('MYSQL_DB_HOST', default=''),
+            'OPTIONS': {
+                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            },
+        }
+    }
+elif DATABASE_URL:
+    # Render yoki boshqa platformalar uchun PostgreSQL
     DATABASES = {
         'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
     }
 else:
+    # SQLite (development va PythonAnywhere free account)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -144,8 +163,11 @@ CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', default=False, cast=bo
 CORS_ALLOW_CREDENTIALS = True
 
 # Security settings for production
+# PythonAnywhere HTTPS ni avtomatik qo'llab-quvvatlaydi
 if not DEBUG:
-    SECURE_SSL_REDIRECT = True
+    # PythonAnywhere da SECURE_SSL_REDIRECT False bo'lishi kerak
+    # chunki ular o'zlarining reverse proxy orqali HTTPS ni boshqaradi
+    SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=False, cast=bool)
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
@@ -181,7 +203,7 @@ LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 
 # Tesseract OCR settings
-# For Linux (Render): use system tesseract
+# For Linux (Render, PythonAnywhere): use system tesseract
 # For Windows: use full path
 TESSERACT_PATH = config('TESSERACT_PATH', default='/usr/bin/tesseract')
 
